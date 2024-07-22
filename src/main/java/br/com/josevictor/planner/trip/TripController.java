@@ -1,5 +1,7 @@
 package br.com.josevictor.planner.trip;
 
+import br.com.josevictor.planner.participant.ParticipantCreateResponse;
+import br.com.josevictor.planner.participant.ParticipantRequestPayload;
 import br.com.josevictor.planner.participant.ParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -69,6 +71,24 @@ public class TripController {
             return ResponseEntity.ok(rawTrip);
         }
 
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/{id}/invite")
+    public ResponseEntity<ParticipantCreateResponse> inviteParticipant(@PathVariable UUID id, @RequestBody ParticipantRequestPayload payload) {
+
+        Optional<Trip> trip = this.tripRepository.findById(id);
+
+        if(trip.isPresent()){
+            Trip rawTrip = trip.get();
+
+
+            ParticipantCreateResponse participantResponse  = this.participantService.registerParticipantToEvent(payload.email(), rawTrip);
+
+            if(rawTrip.getIsConfirmed()) this.participantService.triggerConfirmationEmailToParticipant(payload.email());
+
+            return ResponseEntity.ok(participantResponse);
+        }
         return ResponseEntity.notFound().build();
     }
 }
