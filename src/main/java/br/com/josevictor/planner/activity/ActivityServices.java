@@ -1,4 +1,4 @@
-package br.com.josevictor.planner.activities;
+package br.com.josevictor.planner.activity;
 
 import br.com.josevictor.planner.trip.Trip;
 import org.springframework.beans.factory.annotation.Autowired;

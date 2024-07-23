@@ -1,4 +1,4 @@
-package br.com.josevictor.planner.activities;
+package br.com.josevictor.planner.activity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

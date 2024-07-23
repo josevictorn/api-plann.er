@@ -1,9 +1,10 @@
 package br.com.josevictor.planner.trip;
 
-import br.com.josevictor.planner.activities.ActivityData;
-import br.com.josevictor.planner.activities.ActivityRequestPayload;
-import br.com.josevictor.planner.activities.ActivityResponse;
-import br.com.josevictor.planner.activities.ActivityServices;
+import br.com.josevictor.planner.activity.ActivityData;
+import br.com.josevictor.planner.activity.ActivityRequestPayload;
+import br.com.josevictor.planner.activity.ActivityResponse;
+import br.com.josevictor.planner.activity.ActivityServices;
+import br.com.josevictor.planner.link.*;
 import br.com.josevictor.planner.participant.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +24,13 @@ public class TripController {
     private ParticipantService participantService;
 
     @Autowired
-    private TripRepository tripRepository;
+    private ActivityServices activityServices;
 
     @Autowired
-    private ActivityServices activityServices;
+    private LinkService linkService;
+
+    @Autowired
+    private TripRepository tripRepository;
 
     @PostMapping
     public ResponseEntity<TripCreateResponse> createTrip(@RequestBody TripRequestPayload payload) {
@@ -126,5 +130,27 @@ public class TripController {
         List<ParticipantData> participantList = this.participantService.getAllParticipantsFromEvent(id);
 
         return ResponseEntity.ok(participantList);
+    }
+
+    @PostMapping("/{id}/links")
+    public ResponseEntity<LinkResponse> registerLink(@PathVariable UUID id, @RequestBody LinkRequestPayload payload) {
+        Optional<Trip> trip = this.tripRepository.findById(id);
+
+        if(trip.isPresent()){
+            Trip rawTrip = trip.get();
+
+            LinkResponse linkResponse = this.linkService.registerLink(payload, rawTrip);
+
+            return ResponseEntity.ok(linkResponse);
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/{id}/links")
+    public ResponseEntity<List<LinkData>> getAllLinks(@PathVariable UUID id) {
+        List<LinkData> listDataLink = this.linkService.getAllLinksFromTrip(id);
+
+        return ResponseEntity.ok(listDataLink);
     }
 }
